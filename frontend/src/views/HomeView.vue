@@ -29,7 +29,7 @@ const steps = [
 </script>
 
 <template>
-  <div class="overflow-hidden">
+  <div class="overflow-hidden bg-white dark:bg-slate-950">
     <!-- ───────────────── Hero ───────────────── -->
     <section
       class="relative isolate flex min-h-screen items-center justify-center px-6 pt-20"
@@ -40,14 +40,14 @@ const steps = [
         :style="{ transform: `translateY(${heroShift}px)`, opacity: heroFade }"
       >
         <div
-          class="blob absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-indigo-400/40 blur-3xl"
+          class="blob absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-indigo-400/40 blur-3xl dark:bg-indigo-600/30"
         />
         <div
-          class="blob absolute top-32 right-1/4 h-[28rem] w-[28rem] rounded-full bg-violet-400/40 blur-3xl"
+          class="blob absolute top-32 right-1/4 h-[28rem] w-[28rem] rounded-full bg-violet-400/40 blur-3xl dark:bg-violet-600/30"
           style="animation-delay: -6s"
         />
         <div
-          class="blob absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-sky-300/40 blur-3xl"
+          class="blob absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-sky-300/40 blur-3xl dark:bg-sky-600/25"
           style="animation-delay: -12s"
         />
       </div>
@@ -56,7 +56,7 @@ const steps = [
       <div class="mx-auto max-w-4xl text-center">
         <span
           v-reveal
-          class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/70 px-4 py-1.5 text-sm font-medium text-indigo-700 shadow-sm backdrop-blur"
+          class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/70 px-4 py-1.5 text-sm font-medium text-indigo-700 shadow-sm backdrop-blur dark:border-indigo-500/30 dark:bg-slate-900/70 dark:text-indigo-300"
         >
           <span class="relative flex h-2 w-2">
             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -67,18 +67,18 @@ const steps = [
 
         <h1
           v-reveal="80"
-          class="mt-6 text-balance text-5xl font-bold leading-[1.05] tracking-tight text-slate-900 sm:text-6xl md:text-7xl"
+          class="mt-6 text-balance text-5xl font-bold leading-[1.05] tracking-tight text-slate-900 dark:text-white sm:text-6xl md:text-7xl"
         >
           Turn your documents into
           <span
-            class="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent"
+            class="bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400"
             >answers and action</span
           >.
         </h1>
 
         <p
           v-reveal="160"
-          class="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600"
+          class="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-slate-600 dark:text-slate-300"
         >
           A multi-agent AI platform that analyzes large volumes of files, builds a
           living knowledge base, answers questions with citations, generates
@@ -104,7 +104,7 @@ const steps = [
 
       <!-- scroll cue -->
       <div
-        class="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-400"
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-400 dark:text-slate-500"
         :style="{ opacity: heroFade }"
       >
         <el-icon :size="24" class="animate-bounce"><ArrowDownBold /></el-icon>
@@ -112,7 +112,7 @@ const steps = [
     </section>
 
     <!-- ───────────────── Stats ───────────────── -->
-    <section class="border-y border-slate-200 bg-white">
+    <section class="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div class="mx-auto grid max-w-6xl grid-cols-2 gap-px md:grid-cols-4">
         <div
           v-for="(stat, i) in stats"
@@ -121,11 +121,11 @@ const steps = [
           class="px-6 py-10 text-center"
         >
           <div
-            class="bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl"
+            class="bg-gradient-to-br from-indigo-600 to-violet-600 bg-clip-text text-4xl font-bold text-transparent dark:from-indigo-400 dark:to-violet-400 sm:text-5xl"
           >
             {{ stat.value }}
           </div>
-          <p class="mt-2 text-sm font-medium text-slate-500">{{ stat.label }}</p>
+          <p class="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">{{ stat.label }}</p>
         </div>
       </div>
     </section>
@@ -135,12 +135,12 @@ const steps = [
       <div class="mx-auto max-w-2xl text-center">
         <h2
           v-reveal
-          class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl"
+          class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
         >
           Everything it takes to
-          <span class="text-indigo-600">understand your data</span>
+          <span class="text-indigo-600 dark:text-indigo-400">understand your data</span>
         </h2>
-        <p v-reveal="100" class="mt-4 text-lg text-slate-600">
+        <p v-reveal="100" class="mt-4 text-lg text-slate-600 dark:text-slate-300">
           Each capability is a specialized agent, working together through a
           durable event-driven core.
         </p>
@@ -151,10 +151,10 @@ const steps = [
           v-for="(feature, i) in features"
           :key="feature.title"
           v-reveal="(i % 3) * 120"
-          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-indigo-500/10"
+          class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-indigo-500/10 dark:border-slate-800 dark:bg-slate-900 dark:hover:shadow-indigo-500/20"
         >
           <div
-            class="absolute inset-0 -z-10 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-[0.04]"
+            class="absolute inset-0 -z-10 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-[0.04] dark:group-hover:opacity-[0.12]"
             :class="feature.accent"
           />
           <span
@@ -163,10 +163,10 @@ const steps = [
           >
             <el-icon :size="24"><component :is="feature.icon" /></el-icon>
           </span>
-          <h3 class="mt-5 text-lg font-semibold text-slate-900">
+          <h3 class="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
             {{ feature.title }}
           </h3>
-          <p class="mt-2 text-sm leading-relaxed text-slate-600">
+          <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
             {{ feature.summary }}
           </p>
         </article>
@@ -174,16 +174,16 @@ const steps = [
     </section>
 
     <!-- ───────────────── How it works ───────────────── -->
-    <section class="border-t border-slate-200 bg-slate-50">
+    <section class="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
       <div class="mx-auto max-w-6xl px-6 py-24">
         <div class="mx-auto max-w-2xl text-center">
           <h2
             v-reveal
-            class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl"
+            class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl"
           >
             From raw files to real outcomes
           </h2>
-          <p v-reveal="100" class="mt-4 text-lg text-slate-600">
+          <p v-reveal="100" class="mt-4 text-lg text-slate-600 dark:text-slate-300">
             Three stages, fully automated.
           </p>
         </div>
@@ -191,7 +191,7 @@ const steps = [
         <div class="relative mt-16 grid gap-8 md:grid-cols-3">
           <!-- connecting line -->
           <div
-            class="absolute left-0 right-0 top-9 hidden h-px bg-gradient-to-r from-transparent via-indigo-200 to-transparent md:block"
+            class="absolute left-0 right-0 top-9 hidden h-px bg-gradient-to-r from-transparent via-indigo-200 to-transparent dark:via-indigo-500/40 md:block"
           />
           <div
             v-for="(step, i) in steps"
@@ -200,17 +200,17 @@ const steps = [
             class="relative text-center"
           >
             <span
-              class="relative z-10 mx-auto grid h-[4.5rem] w-[4.5rem] place-items-center rounded-2xl border border-indigo-100 bg-white text-indigo-600 shadow-md"
+              class="relative z-10 mx-auto grid h-[4.5rem] w-[4.5rem] place-items-center rounded-2xl border border-indigo-100 bg-white text-indigo-600 shadow-md dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400"
             >
               <el-icon :size="30"><component :is="step.icon" /></el-icon>
             </span>
-            <div class="mt-2 text-sm font-semibold text-indigo-500">
+            <div class="mt-2 text-sm font-semibold text-indigo-500 dark:text-indigo-400">
               Step {{ i + 1 }}
             </div>
-            <h3 class="mt-1 text-xl font-semibold text-slate-900">
+            <h3 class="mt-1 text-xl font-semibold text-slate-900 dark:text-white">
               {{ step.title }}
             </h3>
-            <p class="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-slate-600">
+            <p class="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-slate-600 dark:text-slate-400">
               {{ step.text }}
             </p>
           </div>

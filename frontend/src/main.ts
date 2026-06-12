@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+// Element Plus dark-mode CSS variables (activated by the `dark` class on <html>).
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import './style.css'
 import App from './App.vue'
 import router from './router'

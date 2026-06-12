@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useScrollProgress } from '@/composables/useScrollProgress'
+import { useTheme } from '@/composables/useTheme'
 
 const { scrollY } = useScrollProgress()
+const { isDark, toggle: toggleTheme } = useTheme()
 const scrolled = computed(() => scrollY.value > 24)
 const mobileOpen = ref(false)
 
@@ -18,7 +20,7 @@ const links = [
     class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
     :class="
       scrolled
-        ? 'border-b border-slate-200/70 bg-white/80 backdrop-blur-xl shadow-sm'
+        ? 'border-b border-slate-200/70 bg-white/80 shadow-sm backdrop-blur-xl dark:border-slate-800/70 dark:bg-slate-950/80'
         : 'border-b border-transparent bg-transparent'
     "
   >
@@ -29,8 +31,8 @@ const links = [
         >
           <el-icon :size="20"><Cpu /></el-icon>
         </span>
-        <span class="text-base font-semibold tracking-tight text-slate-900">
-          Agent<span class="text-indigo-600">OS</span>
+        <span class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">
+          Agent<span class="text-indigo-600 dark:text-indigo-400">OS</span>
         </span>
       </RouterLink>
 
@@ -39,42 +41,66 @@ const links = [
         <li v-for="link in links" :key="link.to">
           <RouterLink
             :to="link.to"
-            class="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
-            active-class="!text-indigo-600"
+            class="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+            active-class="!text-indigo-600 dark:!text-indigo-400"
           >
             {{ link.label }}
           </RouterLink>
         </li>
         <li>
-          <el-button type="primary" round class="ml-2">Get Started</el-button>
+          <button
+            class="ml-1 grid h-10 w-10 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+            :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+            @click="toggleTheme"
+          >
+            <el-icon :size="20">
+              <Sunny v-if="isDark" />
+              <Moon v-else />
+            </el-icon>
+          </button>
+        </li>
+        <li>
+          <el-button type="primary" round class="ml-1">Get Started</el-button>
         </li>
       </ul>
 
-      <!-- Mobile toggle -->
-      <button
-        class="ml-auto grid h-10 w-10 place-items-center rounded-lg text-slate-700 hover:bg-slate-100 md:hidden"
-        aria-label="Toggle menu"
-        @click="mobileOpen = !mobileOpen"
-      >
-        <el-icon :size="22">
-          <Close v-if="mobileOpen" />
-          <Menu v-else />
-        </el-icon>
-      </button>
+      <!-- Mobile actions -->
+      <div class="ml-auto flex items-center gap-1 md:hidden">
+        <button
+          class="grid h-10 w-10 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+          :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          @click="toggleTheme"
+        >
+          <el-icon :size="20">
+            <Sunny v-if="isDark" />
+            <Moon v-else />
+          </el-icon>
+        </button>
+        <button
+          class="grid h-10 w-10 place-items-center rounded-lg text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+          aria-label="Toggle menu"
+          @click="mobileOpen = !mobileOpen"
+        >
+          <el-icon :size="22">
+            <Close v-if="mobileOpen" />
+            <Menu v-else />
+          </el-icon>
+        </button>
+      </div>
     </nav>
 
     <!-- Mobile menu -->
     <Transition name="slide-down">
       <div
         v-if="mobileOpen"
-        class="border-t border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl md:hidden"
+        class="border-t border-slate-200 bg-white/95 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/95 md:hidden"
       >
         <ul class="flex flex-col gap-1">
           <li v-for="link in links" :key="link.to">
             <RouterLink
               :to="link.to"
-              class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              active-class="!text-indigo-600"
+              class="block rounded-lg px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              active-class="!text-indigo-600 dark:!text-indigo-400"
               @click="mobileOpen = false"
             >
               {{ link.label }}

@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 
+/* Drive the `dark:` variant from a `.dark` class on <html> instead of the OS
+   preference, so the in-app toggle controls it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Element Plus injects its own component styles on demand (via the resolver),
    which load after Tailwind's preflight so component styling wins. */
-
-:root {
-  color-scheme: light;
-}
 
 html {
   scroll-behavior: smooth;
@@ -23,6 +23,14 @@ body {
     'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   background: #ffffff;
   color: #0f172a;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+html.dark body {
+  background: #020617; /* slate-950 */
+  color: #e2e8f0; /* slate-200 */
 }
 
 /* ───────────── Scroll-reveal (v-reveal directive) ───────────── */

@@ -3,25 +3,25 @@ import { features } from '@/data/features'
 </script>
 
 <template>
-  <div>
+  <div class="bg-white dark:bg-slate-950">
     <!-- Page header -->
     <section class="relative isolate px-6 pb-16 pt-36">
       <div class="absolute inset-0 -z-10 bg-grid [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]" />
       <div class="mx-auto max-w-3xl text-center">
         <span
           v-reveal
-          class="inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700"
+          class="inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300"
         >
           Platform Capabilities
         </span>
         <h1
           v-reveal="80"
-          class="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl"
+          class="mt-6 text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl"
         >
           Nine agents,
-          <span class="text-indigo-600">one coordinated platform</span>
+          <span class="text-indigo-600 dark:text-indigo-400">one coordinated platform</span>
         </h1>
-        <p v-reveal="160" class="mx-auto mt-5 max-w-2xl text-lg text-slate-600">
+        <p v-reveal="160" class="mx-auto mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-300">
           Every capability below is a specialized agent. They never call each
           other directly — they collaborate through a durable, ordered event bus,
           so each can scale and recover on its own.
@@ -40,14 +40,14 @@ import { features } from '@/data/features'
       >
         <!-- Visual -->
         <div
-          class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl border border-slate-200 bg-slate-50"
+          class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"
         >
           <div
-            class="absolute inset-0 bg-gradient-to-br opacity-10"
+            class="absolute inset-0 bg-gradient-to-br opacity-10 dark:opacity-20"
             :class="feature.accent"
           />
           <div
-            class="absolute -inset-8 bg-gradient-to-br opacity-20 blur-3xl"
+            class="absolute -inset-8 bg-gradient-to-br opacity-20 blur-3xl dark:opacity-30"
             :class="feature.accent"
           />
           <span
@@ -61,19 +61,19 @@ import { features } from '@/data/features'
         <!-- Copy -->
         <div>
           <div
-            class="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-indigo-500"
+            class="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-indigo-500 dark:text-indigo-400"
           >
             <span class="text-2xl font-bold tabular-nums opacity-40"
               >{{ String(i + 1).padStart(2, '0') }}</span
             >
           </div>
-          <h2 class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h2 class="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             {{ feature.title }}
           </h2>
-          <p class="mt-3 text-lg font-medium text-slate-700">
+          <p class="mt-3 text-lg font-medium text-slate-700 dark:text-slate-200">
             {{ feature.summary }}
           </p>
-          <p class="mt-4 leading-relaxed text-slate-600">
+          <p class="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
             {{ feature.details }}
           </p>
         </div>
@@ -81,12 +81,12 @@ import { features } from '@/data/features'
     </section>
 
     <!-- CTA strip -->
-    <section class="border-t border-slate-200 bg-slate-50 px-6 py-20">
+    <section class="border-t border-slate-200 bg-slate-50 px-6 py-20 dark:border-slate-800 dark:bg-slate-900">
       <div v-reveal class="mx-auto max-w-3xl text-center">
-        <h2 class="text-3xl font-bold tracking-tight text-slate-900">
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           See it on your own documents
         </h2>
-        <p class="mx-auto mt-3 max-w-xl text-lg text-slate-600">
+        <p class="mx-auto mt-3 max-w-xl text-lg text-slate-600 dark:text-slate-300">
           Upload a folder and watch the agents ingest, index, and answer.
         </p>
         <div class="mt-8">
