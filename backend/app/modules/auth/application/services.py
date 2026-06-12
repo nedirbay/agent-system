@@ -19,8 +19,8 @@ class UserService:
         self._repo = repository
 
     async def register(self, command: RegisterUserCommand) -> User:
-        if await self._repo.get_by_email(command.email) is not None:
-            raise ConflictError("A user with this email already exists")
+        if await self._repo.get_by_username(command.username) is not None:
+            raise ConflictError("A user with this username already exists")
         user = User(
             username=command.username,
             email=command.email,
@@ -31,10 +31,10 @@ class UserService:
         return await self._repo.add(user)
 
     async def authenticate(self, command: AuthenticateCommand) -> str:
-        user = await self._repo.get_by_email(command.email)
+        user = await self._repo.get_by_username(command.username)
         if user is None or not verify_password(command.password, user.password_hash or ""):
             raise UnauthorizedError("Invalid credentials")
-        return create_access_token(subject=str(user.id), extra={"email": user.email})
+        return create_access_token(subject=str(user.id), extra={"username": user.username})
 
     async def get(self, entity_id: uuid.UUID) -> User:
         entity = await self._repo.get(entity_id)

@@ -20,6 +20,9 @@ def _to_entity(model: DocumentModel) -> Document:
         size=model.size,
         storage_path=model.storage_path,
         status=model.status,
+        extracted_text=model.extracted_text,
+        page_count=model.page_count,
+        doc_metadata=model.doc_metadata,
     )
 
 
@@ -39,8 +42,26 @@ class SqlAlchemyDocumentRepository(DocumentRepository):
             size=entity.size,
             storage_path=entity.storage_path,
             status=entity.status,
+            extracted_text=entity.extracted_text,
+            page_count=entity.page_count,
+            doc_metadata=entity.doc_metadata,
         )
         self._session.add(model)
+        await self._session.flush()
+        return _to_entity(model)
+
+    async def update(self, entity: Document) -> Document:
+        model = await self._session.get(DocumentModel, entity.id)
+        if model is None:
+            raise KeyError(entity.id)
+        model.file_name = entity.file_name
+        model.mime_type = entity.mime_type
+        model.size = entity.size
+        model.storage_path = entity.storage_path
+        model.status = entity.status
+        model.extracted_text = entity.extracted_text
+        model.page_count = entity.page_count
+        model.doc_metadata = entity.doc_metadata
         await self._session.flush()
         return _to_entity(model)
 

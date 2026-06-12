@@ -14,3 +14,6 @@ class Document(BaseEntity):
     size: int | None = None
     storage_path: str | None = None
     status: str | None = "uploaded"
+    extracted_text: str | None = None
+    page_count: int | None = None
+    doc_metadata: dict | None = None

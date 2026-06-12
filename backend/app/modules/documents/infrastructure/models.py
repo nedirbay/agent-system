@@ -22,3 +22,6 @@ class DocumentModel(Base):
     size: Mapped[int | None] = mapped_column(Integer, nullable=True)
     storage_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(255), nullable=False, default="uploaded")
+    extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    doc_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)

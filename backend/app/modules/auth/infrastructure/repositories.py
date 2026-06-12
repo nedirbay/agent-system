@@ -46,9 +46,9 @@ class SqlAlchemyUserRepository(UserRepository):
         model = await self._session.get(UserModel, entity_id)
         return _to_entity(model) if model else None
 
-    async def get_by_email(self, email: str) -> User | None:
+    async def get_by_username(self, username: str) -> User | None:
         result = await self._session.execute(
-            select(UserModel).where(UserModel.email == email)
+            select(UserModel).where(UserModel.username == username)
         )
         model = result.scalar_one_or_none()
         return _to_entity(model) if model else None

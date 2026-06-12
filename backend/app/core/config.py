@@ -36,6 +36,16 @@ class Settings(BaseSettings):
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_secure: bool = False
+    documents_bucket: str = "documents"
+
+    # --- OCR (FR-006) ---
+    # Tesseract language packs, '+'-joined (e.g. "tuk+eng+rus").
+    ocr_languages: str = "tuk+eng+rus"
+    # If a PDF yields fewer than this many characters via the text layer, treat
+    # it as scanned and fall back to OCR.
+    ocr_pdf_min_chars: int = 32
+    # DPI used when rasterising PDF pages for OCR.
+    ocr_pdf_dpi: int = 200
 
     # --- Kafka event bus ---
     kafka_bootstrap_servers: str = "localhost:9092"

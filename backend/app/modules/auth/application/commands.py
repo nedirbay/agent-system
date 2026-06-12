@@ -6,12 +6,12 @@ from dataclasses import dataclass
 @dataclass
 class RegisterUserCommand:
     username: str
-    email: str
     password: str
+    email: str | None = None
     full_name: str | None = None
 
 
 @dataclass
 class AuthenticateCommand:
-    email: str
+    username: str
     password: str

@@ -63,13 +63,13 @@ def test_register_login_flow(client):
 
     ok = client.post(
         "/api/v1/auth/login",
-        json={"email": "alice@acme.io", "password": "supersecret"},
+        json={"username": "alice", "password": "supersecret"},
     )
     assert ok.status_code == 200 and ok.json()["access_token"]
 
     bad = client.post(
         "/api/v1/auth/login",
-        json={"email": "alice@acme.io", "password": "wrong"},
+        json={"username": "alice", "password": "wrong"},
     )
     assert bad.status_code == 401
 

@@ -60,10 +60,38 @@ uvicorn app.main:app --reload
 - Health:      http://localhost:8000/health
 - OpenAPI:     http://localhost:8000/openapi.json
 
-## Database migrations (Alembic)
+## Local infrastructure (Docker)
+
+Postgres 16, Redis 7, Qdrant, Kafka (KRaft), and MinIO — ports/credentials
+match `.env.example`:
 
 ```bash
-alembic revision --autogenerate -m "initial schema"
+docker compose up -d        # start
+docker compose ps           # status
+docker compose down         # stop  (add -v to wipe volumes)
+```
+
+| Service  | Host port            | Notes                          |
+| -------- | -------------------- | ------------------------------ |
+| Postgres | 5432                 | db `agent_platform`            |
+| Redis    | 6379                 |                                |
+| Qdrant   | 6333 (REST) / 6334   |                                |
+| Kafka    | 9092                 | single-node KRaft              |
+| MinIO    | 9000 (S3) / 9001 (UI)| user/pass `minioadmin`         |
+
+## Database migrations (Alembic)
+
+An initial migration covering all 13 tables already exists in
+`migrations/versions/`. Apply it once the database is up:
+
+```bash
+alembic upgrade head
+```
+
+To evolve the schema later, edit the ORM models and autogenerate a revision:
+
+```bash
+alembic revision --autogenerate -m "describe change"
 alembic upgrade head
 ```
 
