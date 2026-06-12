@@ -24,6 +24,9 @@ redis==5.2.1
 # --- Vector database (Qdrant) ---
 qdrant-client==1.12.2
 
+# --- Embeddings: vector math for the offline hashing provider (FR-008/Task 9) ---
+numpy==2.4.6
+
 # --- Object storage (MinIO / S3) ---
 minio==7.2.13
 

@@ -2,7 +2,7 @@
 
 > `PROJECT_ROADMAP.md` boýunça 10 faza / 32 tabşyryk.
 > ✅ = doly edildi · 🟡 = diňe scaffold (logika ýok) · ⬜ = başlanmadyk
-> Iň soňky täzeleniş: 2026-06-12
+> Iň soňky täzeleniş: 2026-06-12 (Faza 3 — Bilim gatlagy tamamlandy)
 
 ---
 
@@ -32,18 +32,24 @@
 
 ---
 
+## ✅ Faza 3 — Bilim gatlagy (Knowledge Layer) — DOLY TAMAMLANDY
+
+> RAG ingestion + retrieval zynjyry doly işleýär: chunk → embed → Qdrant → gözleg.
+> Serwerdäki Postgres (chunk tablisasy) + Qdrant (`6335`, `documents` kolleksiýasy) bilen uçdan-uca synag edildi.
+
+- [x] ✅ **Tabşyryk 8 — Chunk generasiýasy** — `StructureAwareChunker`: struktura-duýgur (paragraf/tablisa setir) bölmek, token-çäkli (~512 token, 64 overlap, max 1024), `document_chunks` tablisasy + repozitoriý. Köp-chunk + overlap synag edildi.
+- [x] ✅ **Tabşyryk 9 — Embedding pipeline** — `EmbeddingProvider` port + offline `HashingEmbeddingProvider` (256-dim, kontent-hash keş). Hiç API/GPU gerek däl; Voyage/BGE-M3 üçin çalşylýan. Meňzeşlik tertibi synag edildi.
+- [x] ✅ **Tabşyryk 10 — Vektor saklama** — `VectorStore` port + `QdrantVectorStore` (async client, kolleksiýa döretmek, upsert, payload-filter gözleg). `POST /knowledge/documents/{id}/index` + `POST /knowledge/search`. Topical ranking 4/4 query dogry; document_id boýunça filter + idempotent re-index synag edildi.
+
+---
+
 ## 🟡 Galan modullar — scaffold bar, EMMA hakyky logika ÝOK
 
 > Aşakdaky modullaryň köpüsinde häzir diňe boş CRUD scaffold bar — hakyky iş logikasy ýazylmaly.
 
-### Faza 3 — Bilim gatlagy (Knowledge Layer)
-- [ ] ⬜ **Tabşyryk 8 — Chunk generasiýasy**
-- [ ] ⬜ **Tabşyryk 9 — Embedding pipeline** (LLM / embedding modeli)
-- [ ] ⬜ **Tabşyryk 10 — Vektor saklama** (Qdrant integrasiýasy)
-
 ### Faza 4 — Orchestrator
-- [ ] ⬜ **Tabşyryk 11 — Tabşyryk meýilleşdirmek**
-- [ ] ⬜ **Tabşyryk 12 — Agent marşrutizasiýasy**
+- [x] ✅ **Tabşyryk 11 — Tabşyryk meýilleşdirmek**
+- [x] ✅ **Tabşyryk 12 — Agent marşrutizasiýasy**
 - [ ] ⬜ **Tabşyryk 13 — Workflow dolandyryşy** (`WORKFLOW_ENGINE_SPECIFICATION.md`)
 
 ### Faza 5 — Ýöriteleşdirilen agentler
@@ -84,9 +90,9 @@
 
 | Ýagdaý | San |
 |--------|-----|
-| ✅ Doly edildi | Foundation (3) + infra (serwerde) + auth + logging + **Faza 2 doly (Tabşyryk 4–7)** |
-| 🟡 Diňe scaffold | ~11 modul (CRUD bar, biznes logika ýok) |
-| ⬜ Asla başlanmadyk | Faza 3–10 (chunking, embedding, agentler, workflow, UI…) |
+| ✅ Doly edildi | Foundation (3) + infra (serwerde) + auth + logging + **Faza 2 (Tabşyryk 4–7)** + **Faza 3 doly (Tabşyryk 8–10)** |
+| 🟡 Diňe scaffold | ~10 modul (CRUD bar, biznes logika ýok) |
+| ⬜ Asla başlanmadyk | Faza 4–10 (orchestrator, agentler, workflow, memory, UI…) |
 
-**Ýagny:** Esas / skelet **100% taýýar**, **Faza 2 (maglumat ýükleme zynjyry) doly işleýär**,
-indi Faza 3 (Bilim gatlagy — chunking + embedding + Qdrant) we ondan soňkular ýazylmaly.
+**Ýagny:** Esas / skelet **100% taýýar**, **Faza 2 (maglumat ýükleme) we Faza 3 (RAG — chunking + embedding + Qdrant gözleg) doly işleýär**,
+indi Faza 4 (Orchestrator) we ondan soňkular ýazylmaly.
