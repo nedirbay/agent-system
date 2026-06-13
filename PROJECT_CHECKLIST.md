@@ -2,7 +2,7 @@
 
 > `PROJECT_ROADMAP.md` boýunça 10 faza / 32 tabşyryk.
 > ✅ = doly edildi · 🟡 = diňe scaffold (logika ýok) · ⬜ = başlanmadyk
-> Iň soňky täzeleniş: 2026-06-13 (Faza 8 — UI doly: Chat / Workspace / Dashboard + hakyky frontend↔backend baglanyşygy we login/register)
+> Iň soňky täzeleniş: 2026-06-13 (Faza 10 — Önümçilige taýýarlyk doly: howpsuzlyk + masştab barlagy + CI/CD. **ÄHLI 10 FAZA / 32 TABŞYRYK TAMAMLANDY** ✅)
 
 ---
 
@@ -74,15 +74,15 @@
 - [x] ✅ **Tabşyryk 26 — Dashboard** — `src/views/app/DashboardView.vue`: ulgam ýagdaýy — resminama / agent / workflow sanawlary `Promise.allSettled` bilen ýüklenýär (backend ýok bolsa boş ýagdaýa degrade bolýar). Stat kartlary, status boýunça paýlanyş barlary, agent görnüşleri, iň soňky resminamalar.
 - [x] ✅ **Frontend → Backend baglanyşygy** — Hakyky API gatlagy (`src/api/`): `client.ts` (fetch wrapper — `VITE_API_BASE`, JWT Bearer awtomat goşulýar, AppError/FastAPI walidasiýa ýalňyşlary normalizirlenýär), `types.ts`, `index.ts` (auth/qa/documents/dashboard). `useAuth` singleton kompozabl (token + user localStorage-de). Hakyky **login / register formasy** (`LoginView.vue`) `/auth/login` & `/auth/register` çagyrýar, awtorizasiýa router guard bilen goralýan `/app` konsoluna ýönelýär (`AppLayout.vue` — sidebar: Chat/Workspace/Dashboard + tema + çykyş). `npm run build` (vue-tsc tip barlagy + vite) üstünlikli geçýär.
 
-### Faza 9 — Monitoring
-- [x] ✅ **Tabşyryk 27 — Logging** (structlog konfigurasiýasy bar)
-- [ ] ⬜ **Tabşyryk 28 — Performance tracking** (metrikalar)
-- [ ] 🟡 **Tabşyryk 29 — Audit ulgamy** (modul scaffold bar, logika ýok)
+### Faza 9 — Monitoring — DOLY TAMAMLANDY
+- [x] ✅ **Tabşyryk 27 — Logging** — structlog konfigurasiýasy + giňeldildi: dört log kategoriýasy (application/security/agent/audit, §11), `correlation_id` (CC-002) her soraga `ObservabilityMiddleware` arkaly baglanýar we ähli log setirlerinde görünýär. Jogapda `X-Correlation-ID` header gaýtarylýar.
+- [x] ✅ **Tabşyryk 28 — Performance tracking** — `app/core/metrics.py`: dependency-siz, thread-safe `MetricsRegistry` (§11 metrikalary: request/error sany, error rate, processing time avg/p50/p95/p99/max, task sany). ASGI middleware her soragyň dowamlylygyny + statusyny ýazýar. `MonitoringService` DB-den gauge-leri (işjeň ulanyjy/agent, task count) okaýar. Endpointler: `GET /monitoring/metrics` (JSON jemi), `GET /monitoring/metrics/prometheus` (Prometheus tekst formaty — ADR-014).
+- [x] ✅ **Tabşyryk 29 — Audit ulgamy** — Goşmaça-diňe (append-only) we tamper-evident audit yzy (FR-014 / AUD-001..004): her ýazgy SHA-256 hash zynjyry bilen baglanýar (`prev_hash`→`entry_hash`), şonuň üçin islendik üýtgeşme/pozmak zynjyry döwýär. `AuditLogService.record()`, `record_security_event()` (AUD-002: LoginSuccess/LoginFailed/... Event Bus arkaly), `query()` (actor/entity/action boýunça filtr), `verify_integrity()` (ilkinji döwlen ýazgyny tapýar). Login akymy LoginSuccess/LoginFailed howpsuzlyk wakalaryny ýazýar. Migrasiýa `c3f6a9d2b1e5` (round-trip barlandy). Endpointler: `POST /audit/security-events`, `GET /audit/verify`, `GET /audit` (filtrler bilen). `backend/tests/test_monitoring.py` (7 test geçýär). Hakyky uvicorn + DB-ä garşy uçdan-uca synag edildi (hash zynjyry, verify ok).
 
-### Faza 10 — Önümçilige taýýarlyk
-- [ ] ⬜ **Tabşyryk 30 — Howpsuzlyk barlagy** (`SECURITY_ARCHITECTURE.md`)
-- [ ] ⬜ **Tabşyryk 31 — Masştablaşma barlagy**
-- [ ] ⬜ **Tabşyryk 32 — Jemleýji walidasiýa** (CI/CD, integrasiýa testleri)
+### Faza 10 — Önümçilige taýýarlyk — DOLY TAMAMLANDY
+- [x] ✅ **Tabşyryk 30 — Howpsuzlyk barlagy** — `SECURITY_REVIEW.md` (her SEC/SB/AUD/DP talaby → durum: Implemented/Partial/Deferred, dogruçyl MVP barlagy). Hakyky deliverable-ler: JWT barlag dependency-si `app/core/auth.py` `get_current_user` (signatura+möhlet, stateless) + goralýan `GET /auth/me`; `SecurityHeadersMiddleware` (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, HSTS dev däl ýerde) — pure ASGI.
+- [x] ✅ **Tabşyryk 31 — Masştablaşma barlagy** — `SCALABILITY_REVIEW.md` (PER-001..004 + §9/§10 → arhitektura). Hakyky deliverable: readiness probe `GET /health/ready` (DB/Redis/Qdrant barlagy, DB kritiki → 503; Redis/Qdrant graceful degrade), `GET /health` liveness. Stateless tier + Redis session ýady masştablaşmany goldaýar.
+- [x] ✅ **Tabşyryk 32 — Jemleýji walidasiýa** — CI/CD: `.github/workflows/ci.yml` (backend pytest + frontend vue-tsc/vite build; OCR üçin tesseract/poppler gurnalýar). Integrasiýa/smoke testi `backend/tests/test_production_readiness.py` (9 test): ähli router-ler mount, OpenAPI generasiýa, security headerlar, auth enforcement, readiness agregasiýasy, error envelope. **Backend jemi: 60 test geçýär.** Hakyky uvicorn-a garşy uçdan-uca barlandy (headerlar, ready=all up, /auth/me).
 
 ---
 
@@ -90,9 +90,8 @@
 
 | Ýagdaý | San |
 |--------|-----|
-| ✅ Doly edildi | Foundation (3) + infra (serwerde) + auth + logging + **Faza 2 (Tabşyryk 4–7)** + **Faza 3 doly (Tabşyryk 8–10)** + **Faza 4 doly (Tabşyryk 11–13)** + **Faza 5 doly (Tabşyryk 14–17: Document / Analysis / Q&A / Reporting Agent)** + **Faza 6 doly (Tabşyryk 18–20: session / long-term / Memory Agent)** + **Faza 7 doly (Tabşyryk 21–23: Computer Use — brauzer / desktop / sandbox)** + **Faza 8 doly (Tabşyryk 24–26: Chat / Workspace / Dashboard UI + frontend↔backend baglanyşygy)** |
-| 🟡 Diňe scaffold | ~7 modul (CRUD bar, biznes logika ýok) |
-| ⬜ Asla başlanmadyk | Faza 9–10 (monitoring, production…) |
-
-**Ýagny:** Esas / skelet **100% taýýar**, **Faza 2 (maglumat ýükleme), Faza 3 (RAG — chunking + embedding + Qdrant gözleg), Faza 4 (Orchestrator — planning/routing/workflow lifecycle), Faza 5 doly (Document / Analysis / Q&A / Reporting Agent), Faza 6 doly (Memory — Redis session ýady + semantik long-term ýat + birleşdirilen Memory Agent konteksti), Faza 7 doly (Computer Use — Execution Agent: brauzer/desktop operasiýalary + howpsuz sandbox ýerine ýetiriş) we Faza 8 doly (UI — Chat/Workspace/Dashboard + hakyky API client, login/register, router guard) işleýär**,
-indi Faza 9 (monitoring) we Faza 10 (önümçilik taýýarlygy) galýar.
+| ✅ Doly edildi | **ÄHLI 10 FAZA / 32 TABŞYRYK** — Foundation (3) + infra (serwerde) + **Faza 2–10 doly** (auth/upload/OCR · RAG · Orchestrator · 4 agent · Memory · Computer Use · UI · Monitoring · Production readiness). Backend **60 test geçýär**, frontend `npm run build` geçýär. |
+| 🟡 Diňe scaffold | ~6 modul (CRUD bar, çuňňur logika ýok — notifications, events, reports CRUD ý.b.) |
+| ⬜ Asla başlanmadyk | — (ýol kartasy doly) |
+/
+**Ýagny:** Tutuş ýol kartasy (`PROJECT_ROADMAP.md` — 10 faza / 32 tabşyryk) **tamamlandy**: maglumat ýükleme + OCR, RAG (chunking + embedding + Qdrant gözleg), Orchestrator (planning/routing/workflow lifecycle), ýöriteleşen agentler (Document / Analysis / Q&A / Reporting), Memory (session + long-term + Memory Agent), Computer Use (Execution Agent + sandbox), UI (Chat/Workspace/Dashboard + hakyky API client), Monitoring (correlation logging + metrikalar/Prometheus + tamper-evident audit) we Production readiness (howpsuzlyk + masştab barlagy + CI/CD). Galan iş — önümçilik infrastrukturasy (Keycloak/OIDC, hakyky gVisor/Firecracker sandbox + Playwright, Kafka background workerlar, load testing, backup/DR) — `SECURITY_REVIEW.md` we `SCALABILITY_REVIEW.md`-de dokumentlenen ops-gatlak işleri.

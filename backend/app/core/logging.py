@@ -30,3 +30,17 @@ def configure_logging() -> None:
 
 def get_logger(name: str | None = None) -> structlog.stdlib.BoundLogger:
     return structlog.get_logger(name)
+
+
+class LogCategory:
+    """The four log categories required by SYSTEM_REQUIREMENTS §11 (Task 27)."""
+
+    APPLICATION = "application"
+    SECURITY = "security"
+    AGENT = "agent"
+    AUDIT = "audit"
+
+
+def get_category_logger(category: str) -> structlog.stdlib.BoundLogger:
+    """Logger tagged with a `log_category` field for downstream routing/filtering."""
+    return structlog.get_logger(category).bind(log_category=category)

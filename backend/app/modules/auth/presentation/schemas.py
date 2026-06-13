@@ -23,6 +23,13 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
+class CurrentUserRead(BaseModel):
+    """The authenticated identity derived from the bearer token (no DB hit)."""
+
+    id: str
+    username: str | None = None
+
+
 class UserRead(BaseModel):
     """Public user projection — never exposes the password hash."""
 
