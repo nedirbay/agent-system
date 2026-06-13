@@ -2,7 +2,7 @@
 
 > `PROJECT_ROADMAP.md` boýunça 10 faza / 32 tabşyryk.
 > ✅ = doly edildi · 🟡 = diňe scaffold (logika ýok) · ⬜ = başlanmadyk
-> Iň soňky täzeleniş: 2026-06-13 (Faza 6 — Memory ulgamy doly: session / long-term / Memory Agent)
+> Iň soňky täzeleniş: 2026-06-13 (Faza 8 — UI doly: Chat / Workspace / Dashboard + hakyky frontend↔backend baglanyşygy we login/register)
 
 ---
 
@@ -63,16 +63,16 @@
 - [x] ✅ **Tabşyryk 19 — Uzak möhletli ýat** — Geçmiş tabşyryklaryň ýady: `MemoryItem` + `MemoryReference` (täze `memory_references` tablisasy — Alembic migrasiýa `b2d5f8c3a1e4`, round-trip barlandy). `LongTermMemoryService.remember()` ýady saklaýar, referensleri belleýär, embed edip aýratyn Qdrant kolleksiýasyna (`memory`) ýazýar; `recall()` semantik gözleg + importance agram bilen tertipleýär. Embed/vektor näsaz bolsa iň soňky ýatlara degrade bolýar (FH-001). Endpointler: `POST /memory/long-term`, `POST /memory/long-term/recall`. Qdrant serwere garşy uçdan-uca synag edildi.
 - [x] ✅ **Tabşyryk 20 — Bilim dolandyryşy (Memory Agent)** — `MemoryAgentService` birleşdirilen `[Memory]` blogyny ýygnaýar (ME-001): working + session + long-term + knowledge (RAG retrieval) ýat zolaklary. Her zolak özbaşdak degrade bolýar (session ýok / long-term boş / retriever elýeterli däl bolsa diňe şol bölüm aýrylýar). Endpoint: `POST /memory/context`. `backend/tests/test_memory.py` (12 test geçýär).
 
-### Faza 7 — Computer Use
-- [ ] ⬜ **Tabşyryk 21 — Brauzer operasiýalary**
-- [ ] ⬜ **Tabşyryk 22 — Desktop operasiýalary**
-- [ ] ⬜ **Tabşyryk 23 — Howpsuz ýerine ýetiriş (sandbox)**
+### Faza 7 — Computer Use — DOLY TAMAMLANDY
+- [x] ✅ **Tabşyryk 21 — Brauzer operasiýalary** — `BrowserDriver` porty + offline `SimulatedBrowserDriver`: nawigasiýa, forma doldurmak (`fill`), basmak (`click`), forma ibermek (`submit`), ýüklemek (`download`), skrinşot. Deterministik sahypa ýagdaýyny + skrinşot salgysyny gaýtarýar, hakyky brauzer/tor gerek däl (hashing-embedder ýaly offline placeholder konwensiýasy — soň Playwright drowery şol porta gabat gelýär). Doldurylan baha (parol ý.b.) loglarda yzyna gaýtarylmaýar.
+- [x] ✅ **Tabşyryk 22 — Desktop operasiýalary** — `DesktopDriver` porty + `LocalSandboxDesktopDriver`: **hakyky** faýl operasiýalary (`read_file`/`write_file`/`list_dir`) we proses ýerine ýetirmek (`run_process`) — ýöne diňe sandbox scratch tomunyň içinde (SB-002) we diňe rugsat berlen komandalar bilen (SB-003), wagt limiti bilen (SB-006). Ýollar we komandalar drowerda gaýtadan barlanýar (defence in depth).
+- [x] ✅ **Tabşyryk 23 — Howpsuz ýerine ýetiriş (sandbox)** — `SafeExecutionSandbox` her hereketi syýasata garşy klassifikasiýa edýär: **DENY** (egress allowlist-de däl SB-008 / ýol scratch-dan çykýar SB-002 / komanda rugsatsyz SB-003 / gadagan operasiýa — scopesyz delete SB-005 & AG-008), **REQUIRE_APPROVAL** (duýgur hereketler: download, submit, write_file, run_process — adam tassyklamasy SB-004), **ALLOW** (diňe okaýan / scope içindäki). `ExecutionAgentService` (AG-008) ýerine ýetiriş planyny hereket-hereket işledýär, ilkinji bloklanan/tassyklama garaşýan/näsaz hereketde duruzýar (fail-closed), her işi `ExecutionRun` hökmünde belleýär (SB-007 audit/replay). Endpointler: `POST /execution/preview` (gury klassifikasiýa), `POST /execution/actions`, `POST /execution/plan`. `backend/tests/test_execution_agent.py` (11 test geçýär). Hakyky scratch tomuna garşy uçdan-uca synag edildi (faýl ýazyldy/okaldy, `echo` prosesi işledi, egress/delete ret edildi).
 
-### Faza 8 — Ulanyjy interfeýsi (UI)
-- [ ] ⬜ **Tabşyryk 24 — Chat interfeýsi**
-- [ ] ⬜ **Tabşyryk 25 — Workspace**
-- [ ] ⬜ **Tabşyryk 26 — Dashboard**
-- [ ] ⬜ **Frontend → Backend baglanyşygy** (API client, real login / register form)
+### Faza 8 — Ulanyjy interfeýsi (UI) — DOLY TAMAMLANDY
+- [x] ✅ **Tabşyryk 24 — Chat interfeýsi** — `src/views/app/ChatView.vue`: hakyky `/qa/ask` endpointine baglanýan chat. Ulanyjy/assistant habarlary, ýazýar-indikatory, teklipler (suggestions), her jogapda grounded/LLM bellikleri we citationlar (snippet + score). Element Plus + Tailwind stilinde.
+- [x] ✅ **Tabşyryk 25 — Workspace** — `src/views/app/WorkspaceView.vue`: bir ýerde resminama dolandyryşy. Hakyky faýl ýükleme (`/documents/upload`), sanaw (`/documents`), parse etmek (`/documents/{id}/parse`) — parse netijesi (char/page/OCR + tekst preview) dialogda görkezilýär. Statistika zolagy (jemi / parse edilen / garaşýan).
+- [x] ✅ **Tabşyryk 26 — Dashboard** — `src/views/app/DashboardView.vue`: ulgam ýagdaýy — resminama / agent / workflow sanawlary `Promise.allSettled` bilen ýüklenýär (backend ýok bolsa boş ýagdaýa degrade bolýar). Stat kartlary, status boýunça paýlanyş barlary, agent görnüşleri, iň soňky resminamalar.
+- [x] ✅ **Frontend → Backend baglanyşygy** — Hakyky API gatlagy (`src/api/`): `client.ts` (fetch wrapper — `VITE_API_BASE`, JWT Bearer awtomat goşulýar, AppError/FastAPI walidasiýa ýalňyşlary normalizirlenýär), `types.ts`, `index.ts` (auth/qa/documents/dashboard). `useAuth` singleton kompozabl (token + user localStorage-de). Hakyky **login / register formasy** (`LoginView.vue`) `/auth/login` & `/auth/register` çagyrýar, awtorizasiýa router guard bilen goralýan `/app` konsoluna ýönelýär (`AppLayout.vue` — sidebar: Chat/Workspace/Dashboard + tema + çykyş). `npm run build` (vue-tsc tip barlagy + vite) üstünlikli geçýär.
 
 ### Faza 9 — Monitoring
 - [x] ✅ **Tabşyryk 27 — Logging** (structlog konfigurasiýasy bar)
@@ -90,9 +90,9 @@
 
 | Ýagdaý | San |
 |--------|-----|
-| ✅ Doly edildi | Foundation (3) + infra (serwerde) + auth + logging + **Faza 2 (Tabşyryk 4–7)** + **Faza 3 doly (Tabşyryk 8–10)** + **Faza 4 doly (Tabşyryk 11–13)** + **Faza 5 doly (Tabşyryk 14–17: Document / Analysis / Q&A / Reporting Agent)** + **Faza 6 doly (Tabşyryk 18–20: session / long-term / Memory Agent)** |
-| 🟡 Diňe scaffold | ~8 modul (CRUD bar, biznes logika ýok) |
-| ⬜ Asla başlanmadyk | Faza 7–10 (Computer Use, UI, monitoring, production…) |
+| ✅ Doly edildi | Foundation (3) + infra (serwerde) + auth + logging + **Faza 2 (Tabşyryk 4–7)** + **Faza 3 doly (Tabşyryk 8–10)** + **Faza 4 doly (Tabşyryk 11–13)** + **Faza 5 doly (Tabşyryk 14–17: Document / Analysis / Q&A / Reporting Agent)** + **Faza 6 doly (Tabşyryk 18–20: session / long-term / Memory Agent)** + **Faza 7 doly (Tabşyryk 21–23: Computer Use — brauzer / desktop / sandbox)** + **Faza 8 doly (Tabşyryk 24–26: Chat / Workspace / Dashboard UI + frontend↔backend baglanyşygy)** |
+| 🟡 Diňe scaffold | ~7 modul (CRUD bar, biznes logika ýok) |
+| ⬜ Asla başlanmadyk | Faza 9–10 (monitoring, production…) |
 
-**Ýagny:** Esas / skelet **100% taýýar**, **Faza 2 (maglumat ýükleme), Faza 3 (RAG — chunking + embedding + Qdrant gözleg), Faza 4 (Orchestrator — planning/routing/workflow lifecycle), Faza 5 doly (Document / Analysis / Q&A / Reporting Agent) we Faza 6 doly (Memory — Redis session ýady + semantik long-term ýat + birleşdirilen Memory Agent konteksti) işleýär**,
-indi Faza 7 (Computer Use), UI we ondan soňkular ýazylmaly.
+**Ýagny:** Esas / skelet **100% taýýar**, **Faza 2 (maglumat ýükleme), Faza 3 (RAG — chunking + embedding + Qdrant gözleg), Faza 4 (Orchestrator — planning/routing/workflow lifecycle), Faza 5 doly (Document / Analysis / Q&A / Reporting Agent), Faza 6 doly (Memory — Redis session ýady + semantik long-term ýat + birleşdirilen Memory Agent konteksti), Faza 7 doly (Computer Use — Execution Agent: brauzer/desktop operasiýalary + howpsuz sandbox ýerine ýetiriş) we Faza 8 doly (UI — Chat/Workspace/Dashboard + hakyky API client, login/register, router guard) işleýär**,
+indi Faza 9 (monitoring) we Faza 10 (önümçilik taýýarlygy) galýar.

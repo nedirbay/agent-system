@@ -102,6 +102,18 @@ class Settings(BaseSettings):
     qdrant_memory_collection: str = "memory"
     memory_recall_top_k: int = 5
 
+    # --- Computer Use / Execution Agent (Faza 7 / AG-008, FR-015, SB-001..008) ---
+    # Every Execution Agent task runs inside a sandbox. The scratch dir is the
+    # only writable storage (SB-002); file actions are confined to it.
+    execution_scratch_dir: str = "/tmp/agent-sandbox"
+    # Default-deny egress (SB-008): browser actions may only reach these hosts.
+    execution_egress_allowlist: list[str] = ["example.com", "www.example.com"]
+    # Capability grant (SB-003): only these executables may be run.
+    execution_command_allowlist: list[str] = ["echo", "cat", "ls", "true"]
+    # Resource limits (SB-006).
+    execution_process_timeout_seconds: float = 10.0
+    execution_max_output_chars: int = 10_000
+
     # --- CORS ---
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 

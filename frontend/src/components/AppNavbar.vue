@@ -2,11 +2,17 @@
 import { computed, ref } from 'vue'
 import { useScrollProgress } from '@/composables/useScrollProgress'
 import { useTheme } from '@/composables/useTheme'
+import { useAuth } from '@/composables/useAuth'
 
 const { scrollY } = useScrollProgress()
 const { isDark, toggle: toggleTheme } = useTheme()
+const { isAuthenticated } = useAuth()
 const scrolled = computed(() => scrollY.value > 24)
 const mobileOpen = ref(false)
+
+// Logged-in visitors jump straight into the console; everyone else signs in.
+const ctaTo = computed(() => (isAuthenticated.value ? '/app/chat' : '/login'))
+const ctaLabel = computed(() => (isAuthenticated.value ? 'Open Console' : 'Get Started'))
 
 const links = [
   { to: '/', label: 'Home' },
@@ -60,7 +66,9 @@ const links = [
           </button>
         </li>
         <li>
-          <el-button type="primary" round class="ml-1">Get Started</el-button>
+          <RouterLink :to="ctaTo">
+            <el-button type="primary" round class="ml-1">{{ ctaLabel }}</el-button>
+          </RouterLink>
         </li>
       </ul>
 
@@ -107,7 +115,9 @@ const links = [
             </RouterLink>
           </li>
           <li class="mt-2">
-            <el-button type="primary" round class="w-full">Get Started</el-button>
+            <RouterLink :to="ctaTo" @click="mobileOpen = false">
+              <el-button type="primary" round class="w-full">{{ ctaLabel }}</el-button>
+            </RouterLink>
           </li>
         </ul>
       </div>

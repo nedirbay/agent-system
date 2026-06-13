@@ -1,0 +1,65 @@
+/** Typed backend API surface used by the app views. */
+import { request } from './client'
+import type {
+  AgentRecord,
+  DocumentRecord,
+  ParseResult,
+  QaAnswer,
+  RegisterPayload,
+  TokenResponse,
+  User,
+  WorkflowRecord,
+} from './types'
+
+export * from './types'
+export { ApiError, getToken, setToken } from './client'
+
+// --- Auth (Frontend → Backend connection) ---
+
+export const authApi = {
+  login: (username: string, password: string) =>
+    request<TokenResponse>('/auth/login', {
+      method: 'POST',
+      body: { username, password },
+    }),
+  register: (payload: RegisterPayload) =>
+    request<User>('/auth/register', { method: 'POST', body: payload }),
+  listUsers: () => request<User[]>('/auth/users', { query: { limit: 100 } }),
+}
+
+// --- Chat / Q&A (Task 24) ---
+
+export const qaApi = {
+  ask: (question: string, opts: { top_k?: number; document_id?: string } = {}) =>
+    request<QaAnswer>('/qa/ask', {
+      method: 'POST',
+      body: {
+        question,
+        top_k: opts.top_k ?? 5,
+        document_id: opts.document_id ?? null,
+      },
+    }),
+}
+
+// --- Documents / Workspace (Task 25) ---
+
+export const documentsApi = {
+  list: (limit = 100) =>
+    request<DocumentRecord[]>('/documents', { query: { limit } }),
+  get: (id: string) => request<DocumentRecord>(`/documents/${id}`),
+  upload: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return request<DocumentRecord>('/documents/upload', { method: 'POST', form })
+  },
+  parse: (id: string) =>
+    request<ParseResult>(`/documents/${id}/parse`, { method: 'POST' }),
+}
+
+// --- Dashboard (Task 26) ---
+
+export const dashboardApi = {
+  agents: () => request<AgentRecord[]>('/agents', { query: { limit: 100 } }),
+  workflows: () =>
+    request<WorkflowRecord[]>('/workflows', { query: { limit: 100 } }),
+}
