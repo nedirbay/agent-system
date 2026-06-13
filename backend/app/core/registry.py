@@ -16,7 +16,10 @@ from app.modules.workflows.infrastructure.instance_models import (  # noqa: F401
     WorkflowInstanceModel,
     WorkflowStepModel,
 )
-from app.modules.memory.infrastructure.models import MemoryItemModel  # noqa: F401
+from app.modules.memory.infrastructure.models import (  # noqa: F401
+    MemoryItemModel,
+    MemoryReferenceModel,
+)
 from app.modules.notifications.infrastructure.models import NotificationModel  # noqa: F401
 from app.modules.audit.infrastructure.models import AuditLogModel  # noqa: F401
 from app.modules.execution.infrastructure.models import ExecutionRunModel  # noqa: F401

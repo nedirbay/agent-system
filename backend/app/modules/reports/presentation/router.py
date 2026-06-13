@@ -5,11 +5,41 @@ import uuid
 from fastapi import APIRouter, Depends
 
 from app.modules.reports.application.commands import CreateReportCommand
+from app.modules.reports.application.report_agent import ReportAgentService
 from app.modules.reports.application.services import ReportService
-from app.modules.reports.presentation.dependencies import get_report_service
-from app.modules.reports.presentation.schemas import ReportCreate, ReportRead
+from app.modules.reports.presentation.dependencies import (
+    get_report_agent_service,
+    get_report_service,
+)
+from app.modules.reports.presentation.schemas import (
+    GenerateReportRequest,
+    ReportAgentResultRead,
+    ReportCreate,
+    ReportRead,
+)
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
+
+
+@router.post("/generate-from-analysis", response_model=ReportAgentResultRead)
+async def generate_report_from_analysis(
+    payload: GenerateReportRequest,
+    service: ReportAgentService = Depends(get_report_agent_service),
+) -> ReportAgentResultRead:
+    """Render and persist a report from an Analysis Agent job result."""
+    result = await service.generate_from_analysis(
+        payload.analysis_job_id,
+        name=payload.name,
+        report_format=payload.format,
+        user_id=payload.user_id,
+    )
+    return ReportAgentResultRead(
+        report_id=result.report_id,
+        analysis_job_id=result.analysis_job_id,
+        name=result.name,
+        format=result.format,
+        content=result.content,
+    )
 
 
 @router.post("", response_model=ReportRead, status_code=201)

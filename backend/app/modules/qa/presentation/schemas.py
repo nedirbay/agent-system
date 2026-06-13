@@ -18,3 +18,27 @@ class QaConversationRead(BaseModel):
     created_at: datetime
     user_id: uuid.UUID | None = None
     title: str | None = None
+
+
+class QaAskRequest(BaseModel):
+    question: str
+    top_k: int = 5
+    document_id: uuid.UUID | None = None
+
+
+class QaCitationRead(BaseModel):
+    index: int
+    chunk_id: uuid.UUID
+    document_id: uuid.UUID | None = None
+    chunk_index: int | None = None
+    page: int | None = None
+    score: float
+    snippet: str
+
+
+class QaAnswerRead(BaseModel):
+    question: str
+    answer: str
+    grounded: bool
+    llm_used: bool
+    citations: list[QaCitationRead]

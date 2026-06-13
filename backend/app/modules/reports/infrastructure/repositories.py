@@ -19,6 +19,7 @@ def _to_entity(model: ReportModel) -> Report:
         name=model.name,
         format=model.format,
         storage_path=model.storage_path,
+        content=model.content,
     )
 
 
@@ -37,6 +38,7 @@ class SqlAlchemyReportRepository(ReportRepository):
             name=entity.name,
             format=entity.format,
             storage_path=entity.storage_path,
+            content=entity.content,
         )
         self._session.add(model)
         await self._session.flush()

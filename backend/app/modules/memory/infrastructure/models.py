@@ -19,3 +19,15 @@ class MemoryItemModel(Base):
     memory_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
     content: Mapped[str | None] = mapped_column(Text, nullable=True)
     importance_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class MemoryReferenceModel(Base):
+    __tablename__ = "memory_references"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    memory_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True, nullable=False)
+    related_entity_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    related_entity_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)

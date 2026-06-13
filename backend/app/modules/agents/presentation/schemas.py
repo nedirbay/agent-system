@@ -54,3 +54,13 @@ class AgentSpecRead(BaseModel):
     tier: str
     capabilities: list[str]
     requires_approval: bool
+
+
+class DocumentAgentAnalysisRead(BaseModel):
+    document_id: uuid.UUID
+    file_name: str | None = None
+    summary: str
+    language: str | None = None
+    categories: list[str]
+    classification: str
+    metadata: dict

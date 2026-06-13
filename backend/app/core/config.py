@@ -90,6 +90,18 @@ class Settings(BaseSettings):
     llm_model_general: str = "gemma4:31b-cloud"
     llm_model_light: str = "gemma4:31b-cloud"
 
+    # --- Memory layer (Faza 6 / AG-009, ME-001..ME-002) ---
+    # Session memory lives in Redis. Retention matches DATABASE_DESIGN (30 days).
+    session_memory_ttl_seconds: int = 60 * 60 * 24 * 30
+    # Context compression (ME-002): when a session exceeds max_turns, the oldest
+    # turns are folded into a running summary, keeping only the most recent.
+    session_memory_max_turns: int = 20
+    session_memory_recent_turns: int = 8
+    # Long-term memory semantic recall reuses the embedding model in its own
+    # Qdrant collection (one collection = one model/dim, per EM-002).
+    qdrant_memory_collection: str = "memory"
+    memory_recall_top_k: int = 5
+
     # --- CORS ---
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
 

@@ -22,3 +22,17 @@ class AnalysisJobRead(BaseModel):
     kind: str | None = None
     status: str | None = None
     result: dict | None = None
+
+
+class AnalyzeDocumentsRequest(BaseModel):
+    document_ids: list[uuid.UUID]
+
+
+class AnalysisAgentResultRead(BaseModel):
+    job_id: uuid.UUID
+    document_ids: list[uuid.UUID]
+    summary: str
+    statistics: dict
+    trends: list[str]
+    findings: list[str]
+    recommendations: list[str]

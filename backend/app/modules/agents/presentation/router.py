@@ -5,17 +5,20 @@ import uuid
 from fastapi import APIRouter, Depends
 
 from app.modules.agents.application.commands import CreateAgentCommand
+from app.modules.agents.application.document_agent import DocumentAgentService
 from app.modules.agents.application.orchestrator import OrchestratorService
 from app.modules.agents.application.services import AgentService
 from app.modules.agents.domain.registry import AGENT_REGISTRY
 from app.modules.agents.presentation.dependencies import (
     get_agent_service,
+    get_document_agent_service,
     get_orchestrator_service,
 )
 from app.modules.agents.presentation.schemas import (
     AgentCreate,
     AgentRead,
     AgentSpecRead,
+    DocumentAgentAnalysisRead,
     PlannedStepRead,
     PlanRead,
     PlanRequest,
@@ -62,6 +65,27 @@ async def orchestrator_plan(
             )
             for s in plan.steps
         ],
+    )
+
+
+@router.post(
+    "/document-agent/documents/{document_id}/analyze",
+    response_model=DocumentAgentAnalysisRead,
+)
+async def analyze_document_with_agent(
+    document_id: uuid.UUID,
+    service: DocumentAgentService = Depends(get_document_agent_service),
+) -> DocumentAgentAnalysisRead:
+    """Analyze a parsed document with the specialized Document Agent."""
+    result = await service.analyze(document_id)
+    return DocumentAgentAnalysisRead(
+        document_id=result.document_id,
+        file_name=result.file_name,
+        summary=result.summary,
+        language=result.language,
+        categories=result.categories,
+        classification=result.classification,
+        metadata=result.metadata,
     )
 
 

@@ -13,3 +13,4 @@ class Report(BaseEntity):
     name: str | None = None
     format: str | None = None
     storage_path: str | None = None
+    content: str | None = None

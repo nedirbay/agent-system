@@ -24,3 +24,19 @@ class ReportRead(BaseModel):
     name: str | None = None
     format: str | None = None
     storage_path: str | None = None
+    content: str | None = None
+
+
+class GenerateReportRequest(BaseModel):
+    analysis_job_id: uuid.UUID
+    name: str | None = None
+    format: str = "markdown"
+    user_id: uuid.UUID | None = None
+
+
+class ReportAgentResultRead(BaseModel):
+    report_id: uuid.UUID
+    analysis_job_id: uuid.UUID
+    name: str
+    format: str
+    content: str

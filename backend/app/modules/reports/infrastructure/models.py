@@ -21,3 +21,4 @@ class ReportModel(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     format: Mapped[str | None] = mapped_column(String(255), nullable=True)
     storage_path: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
