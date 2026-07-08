@@ -40,6 +40,18 @@ const router = createRouter({
           meta: { title: 'Chat', requiresAuth: true },
         },
         {
+          path: 'agents',
+          name: 'agents',
+          component: () => import('@/views/app/AgentsView.vue'),
+          meta: { title: 'Agents', requiresAuth: true },
+        },
+        {
+          path: 'connectors',
+          name: 'connectors',
+          component: () => import('@/views/app/ConnectorsView.vue'),
+          meta: { title: 'Connectors', requiresAuth: true },
+        },
+        {
           path: 'workspace',
           name: 'workspace',
           component: () => import('@/views/app/WorkspaceView.vue'),

@@ -11,6 +11,8 @@ const sidebarOpen = ref(false)
 
 const nav = [
   { to: '/app/chat', label: 'Chat', icon: 'ChatDotRound' },
+  { to: '/app/agents', label: 'Agents', icon: 'MagicStick' },
+  { to: '/app/connectors', label: 'Connectors', icon: 'Connection' },
   { to: '/app/workspace', label: 'Workspace', icon: 'Folder' },
   { to: '/app/dashboard', label: 'Dashboard', icon: 'DataAnalysis' },
 ]

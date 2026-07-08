@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
+import json
 import uuid
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 
 from app.modules.workflows.application.commands import CreateWorkflowCommand
 from app.modules.workflows.application.engine import WorkflowEngine
@@ -64,6 +67,53 @@ async def run_workflow(
         payload.request, task_id=payload.task_id, context=payload.context
     )
     return _to_instance_read(instance)
+
+
+@router.post("/run/stream")
+async def run_workflow_stream(
+    payload: RunWorkflowRequest,
+    engine: WorkflowEngine = Depends(get_workflow_engine),
+) -> StreamingResponse:
+    """Run a workflow and stream per-step progress as Server-Sent Events.
+
+    Emits one ``data: {json}`` line per event (planning, plan, step_started,
+    step_completed/step_failed, awaiting_approval, completed/failed) so the UI
+    can render the agents working in real time.
+    """
+    queue: asyncio.Queue[dict | None] = asyncio.Queue()
+
+    async def emit(event: dict) -> None:
+        await queue.put(event)
+
+    async def runner() -> None:
+        try:
+            await engine.run(
+                payload.request,
+                task_id=payload.task_id,
+                context=payload.context,
+                on_event=emit,
+            )
+        except Exception as exc:  # surface failures to the client, then close
+            await queue.put({"type": "error", "message": str(exc)})
+        finally:
+            await queue.put(None)  # sentinel: end of stream
+
+    async def event_stream():
+        task = asyncio.create_task(runner())
+        try:
+            while True:
+                event = await queue.get()
+                if event is None:
+                    break
+                yield f"data: {json.dumps(event)}\n\n"
+        finally:
+            await task
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @router.get("/instances", response_model=list[WorkflowInstanceRead])

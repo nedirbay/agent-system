@@ -103,3 +103,64 @@ export async function request<T>(
     ? ((await res.json()) as T)
     : (undefined as T)
 }
+
+/**
+ * POST a JSON body and consume a Server-Sent Events stream, invoking `onEvent`
+ * for every `data: {json}` line as it arrives. Resolves when the stream closes.
+ * Used for real-time workflow execution (`EventSource` can't POST or send the
+ * Authorization header, so we read the stream off `fetch` directly).
+ */
+export async function streamRequest<E>(
+  path: string,
+  body: unknown,
+  onEvent: (event: E) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  const token = getToken()
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal,
+    })
+  } catch {
+    throw new ApiError(0, 'Cannot reach the API server. Is the backend running?')
+  }
+
+  if (!res.ok || !res.body) {
+    throw new ApiError(res.status || 0, res.statusText || 'Stream failed')
+  }
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  for (;;) {
+    const { value, done } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+
+    // SSE frames are separated by a blank line.
+    let sep: number
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      const frame = buffer.slice(0, sep)
+      buffer = buffer.slice(sep + 2)
+      for (const line of frame.split('\n')) {
+        const trimmed = line.trimStart()
+        if (!trimmed.startsWith('data:')) continue
+        const payload = trimmed.slice(5).trim()
+        if (!payload) continue
+        try {
+          onEvent(JSON.parse(payload) as E)
+        } catch {
+          /* ignore malformed frame */
+        }
+      }
+    }
+  }
+}

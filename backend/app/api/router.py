@@ -15,6 +15,7 @@ from app.modules.audit.presentation.router import router as audit_router
 from app.modules.execution.presentation.router import router as execution_router
 from app.modules.events.presentation.router import router as events_router
 from app.modules.monitoring.presentation.router import router as monitoring_router
+from app.modules.connectors.presentation.router import router as connectors_router
 
 api_router = APIRouter()
 
@@ -32,3 +33,4 @@ api_router.include_router(audit_router)
 api_router.include_router(execution_router)
 api_router.include_router(events_router)
 api_router.include_router(monitoring_router)
+api_router.include_router(connectors_router)

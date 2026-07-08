@@ -24,3 +24,4 @@ from app.modules.notifications.infrastructure.models import NotificationModel  #
 from app.modules.audit.infrastructure.models import AuditLogModel  # noqa: F401
 from app.modules.execution.infrastructure.models import ExecutionRunModel  # noqa: F401
 from app.modules.events.infrastructure.models import SystemEventModel  # noqa: F401
+from app.modules.connectors.infrastructure.models import ConnectorConnectionModel  # noqa: F401

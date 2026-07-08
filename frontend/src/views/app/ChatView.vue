@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import { ApiError, qaApi, type QaCitation } from '@/api'
+import { nextTick, reactive, ref } from 'vue'
+import { ApiError, workflowsApi } from '@/api'
+import {
+  agentMeta,
+  applyEvent,
+  isRealAgent,
+  newRunState,
+  type Phase,
+  type RunState,
+} from '@/lib/agentRun'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
-  text: string
-  grounded?: boolean
-  llmUsed?: boolean
-  citations?: QaCitation[]
-  error?: boolean
+  text?: string
+  run?: RunState
 }
 
 const messages = ref<ChatMessage[]>([])
@@ -18,8 +23,8 @@ const scroller = ref<HTMLElement | null>(null)
 
 const suggestions = [
   'What documents are in the knowledge base?',
-  'Summarize the refund policy.',
-  'What are the key findings so far?',
+  'Summarize the key findings and write a short report.',
+  'Analyze the indexed documents for risks.',
 ]
 
 async function scrollToBottom() {
@@ -32,28 +37,23 @@ async function send(text?: string) {
   if (!question || sending.value) return
 
   messages.value.push({ role: 'user', text: question })
+  const run = reactive<RunState>(newRunState())
+  run.phase = 'planning' as Phase
+  messages.value.push({ role: 'assistant', run })
   draft.value = ''
   sending.value = true
   await scrollToBottom()
 
   try {
-    const answer = await qaApi.ask(question)
-    messages.value.push({
-      role: 'assistant',
-      text: answer.answer,
-      grounded: answer.grounded,
-      llmUsed: answer.llm_used,
-      citations: answer.citations,
+    await workflowsApi.runStream(question, (event) => {
+      applyEvent(run, event)
+      void scrollToBottom()
     })
+    if (run.phase === 'running') run.phase = 'completed'
   } catch (err) {
-    messages.value.push({
-      role: 'assistant',
-      error: true,
-      text:
-        err instanceof ApiError
-          ? `Could not answer: ${err.message}`
-          : 'The Q&A service is unavailable.',
-    })
+    run.error =
+      err instanceof ApiError ? err.message : 'The agents are unavailable right now.'
+    run.phase = 'failed'
   } finally {
     sending.value = false
     await scrollToBottom()
@@ -75,11 +75,9 @@ async function send(text?: string) {
         >
           <el-icon :size="28"><ChatDotRound /></el-icon>
         </span>
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
-          Ask the platform anything
-        </h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Ask the platform anything</h2>
         <p class="mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
-          Grounded answers from your indexed documents, with citations.
+          The orchestrator picks the right agents for your request and shows them working live.
         </p>
         <div class="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -94,79 +92,100 @@ async function send(text?: string) {
       </div>
 
       <!-- Bubbles -->
-      <div
-        v-for="(m, i) in messages"
-        :key="i"
-        class="flex gap-3"
-        :class="m.role === 'user' ? 'justify-end' : 'justify-start'"
-      >
-        <div
-          v-if="m.role === 'assistant'"
-          class="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
-        >
-          <el-icon :size="16"><Cpu /></el-icon>
-        </div>
-        <div
-          class="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
-          :class="
-            m.role === 'user'
-              ? 'bg-indigo-600 text-white'
-              : m.error
-                ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400'
-                : 'bg-white text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200'
-          "
-        >
-          <p class="whitespace-pre-wrap">{{ m.text }}</p>
-
-          <!-- Answer metadata + citations -->
-          <div v-if="m.role === 'assistant' && !m.error" class="mt-3 space-y-2">
-            <div class="flex flex-wrap gap-1.5">
-              <el-tag :type="m.grounded ? 'success' : 'info'" size="small" effect="light">
-                {{ m.grounded ? 'Grounded' : 'No sources' }}
-              </el-tag>
-              <el-tag :type="m.llmUsed ? 'primary' : 'warning'" size="small" effect="light">
-                {{ m.llmUsed ? 'LLM' : 'Extractive' }}
-              </el-tag>
-            </div>
-            <details v-if="m.citations?.length" class="group">
-              <summary
-                class="cursor-pointer text-xs font-medium text-indigo-600 dark:text-indigo-400"
-              >
-                {{ m.citations.length }} citation{{ m.citations.length > 1 ? 's' : '' }}
-              </summary>
-              <ul class="mt-2 space-y-1.5">
-                <li
-                  v-for="c in m.citations"
-                  :key="c.index"
-                  class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-400"
-                >
-                  <span class="font-medium text-slate-700 dark:text-slate-300">
-                    [{{ c.index }}]
-                  </span>
-                  {{ c.snippet }}
-                  <span class="text-slate-400">· score {{ c.score.toFixed(2) }}</span>
-                </li>
-              </ul>
-            </details>
+      <template v-for="(m, i) in messages" :key="i">
+        <!-- User -->
+        <div v-if="m.role === 'user'" class="flex justify-end">
+          <div class="max-w-[80%] rounded-2xl bg-indigo-600 px-4 py-3 text-sm leading-relaxed text-white">
+            {{ m.text }}
           </div>
         </div>
-      </div>
 
-      <!-- Typing indicator -->
-      <div v-if="sending" class="flex gap-3">
-        <div
-          class="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
-        >
-          <el-icon :size="16"><Cpu /></el-icon>
+        <!-- Assistant: live orchestration -->
+        <div v-else class="flex gap-3">
+          <div
+            class="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
+          >
+            <el-icon :size="16"><Cpu /></el-icon>
+          </div>
+
+          <div class="max-w-[85%] flex-1 space-y-2">
+            <!-- Agent activity timeline -->
+            <div
+              v-if="m.run && m.run.steps.length"
+              class="space-y-1.5 rounded-2xl bg-white p-3 shadow-sm dark:bg-slate-800"
+            >
+              <p class="px-1 text-xs font-medium text-slate-400">
+                {{ m.run.phase === 'completed' ? 'Agents used' : 'Working…' }}
+              </p>
+              <div
+                v-for="step in m.run.steps"
+                :key="step.order"
+                class="flex items-center gap-2.5 rounded-lg px-2 py-1.5"
+                :class="step.status === 'running' ? 'bg-indigo-50 dark:bg-indigo-500/10' : ''"
+              >
+                <el-icon v-if="step.status === 'running'" :size="15" class="animate-spin text-indigo-500">
+                  <Loading />
+                </el-icon>
+                <el-icon v-else-if="step.status === 'completed'" :size="15" class="text-emerald-500">
+                  <CircleCheckFilled />
+                </el-icon>
+                <el-icon v-else-if="step.status === 'failed'" :size="15" class="text-rose-500">
+                  <CircleCloseFilled />
+                </el-icon>
+                <el-icon v-else-if="step.status === 'awaiting'" :size="15" class="text-amber-500">
+                  <WarningFilled />
+                </el-icon>
+                <el-icon v-else :size="15" :class="agentMeta(step.agent_type).tint">
+                  <component :is="agentMeta(step.agent_type).icon" />
+                </el-icon>
+
+                <span class="text-xs font-medium text-slate-700 dark:text-slate-200">
+                  {{ step.agent_type }}
+                </span>
+                <el-tag
+                  v-if="step.status === 'completed' && isRealAgent(step)"
+                  type="success"
+                  size="small"
+                  effect="light"
+                  class="!h-4 !px-1 !text-[10px]"
+                >
+                  real
+                </el-tag>
+                <span class="truncate text-xs text-slate-400">{{ step.objective }}</span>
+              </div>
+            </div>
+
+            <!-- Planning placeholder -->
+            <div
+              v-else-if="m.run && (m.run.phase === 'planning' || m.run.phase === 'running')"
+              class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800"
+            >
+              <span class="flex gap-1">
+                <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
+                <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
+                <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
+              </span>
+              <span class="text-xs text-slate-400">Planning…</span>
+            </div>
+
+            <!-- Final answer -->
+            <div
+              v-if="m.run && m.run.phase === 'completed' && m.run.finalAnswer"
+              class="rounded-2xl bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-200"
+            >
+              <p class="whitespace-pre-wrap">{{ m.run.finalAnswer }}</p>
+            </div>
+
+            <!-- Error -->
+            <div
+              v-if="m.run && m.run.phase === 'failed'"
+              class="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+            >
+              {{ m.run.error || 'The task could not be completed.' }}
+            </div>
+          </div>
         </div>
-        <div class="rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
-          <span class="flex gap-1">
-            <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
-            <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
-            <span class="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
-          </span>
-        </div>
-      </div>
+      </template>
     </div>
 
     <!-- Composer -->
@@ -178,7 +197,7 @@ async function send(text?: string) {
         type="textarea"
         :autosize="{ minRows: 1, maxRows: 5 }"
         resize="none"
-        placeholder="Ask a question…"
+        placeholder="Ask a question or describe a task…"
         class="!border-0"
         @keydown.enter.exact.prevent="send()"
       />

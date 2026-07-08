@@ -1,13 +1,17 @@
 /** Typed backend API surface used by the app views. */
-import { request } from './client'
+import { request, streamRequest } from './client'
 import type {
   AgentRecord,
+  AgentSpec,
+  ConnectorConnection,
+  ConnectorSpec,
   DocumentRecord,
   ParseResult,
   QaAnswer,
   RegisterPayload,
   TokenResponse,
   User,
+  WorkflowEvent,
   WorkflowRecord,
 } from './types'
 
@@ -62,4 +66,44 @@ export const dashboardApi = {
   agents: () => request<AgentRecord[]>('/agents', { query: { limit: 100 } }),
   workflows: () =>
     request<WorkflowRecord[]>('/workflows', { query: { limit: 100 } }),
+}
+
+// --- Multi-agent task execution (real-time orchestration) ---
+
+export const workflowsApi = {
+  /** Submit a task and stream each agent step as it runs (SSE). */
+  runStream: (
+    requestText: string,
+    onEvent: (event: WorkflowEvent) => void,
+    opts: { context?: Record<string, unknown>; signal?: AbortSignal } = {},
+  ) =>
+    streamRequest<WorkflowEvent>(
+      '/workflows/run/stream',
+      { request: requestText, context: opts.context ?? {} },
+      onEvent,
+      opts.signal,
+    ),
+}
+
+// --- Agent registry catalogue ---
+
+export const agentsApi = {
+  /** The catalogue of agent types the orchestrator can plan and route to. */
+  registry: () => request<AgentSpec[]>('/agents/registry'),
+}
+
+// --- Connectors (external systems / MCP integrations) ---
+
+export const connectorsApi = {
+  /** Catalogue of external systems available to connect. */
+  catalog: () => request<ConnectorSpec[]>('/connectors/catalog'),
+  /** The current user's stored connections (no plaintext secrets). */
+  list: () => request<ConnectorConnection[]>('/connectors'),
+  /** Add a connection; `values` holds the submitted field values (incl. secrets). */
+  add: (connector_type: string, label: string | null, values: Record<string, unknown>) =>
+    request<ConnectorConnection>('/connectors', {
+      method: 'POST',
+      body: { connector_type, label, values },
+    }),
+  remove: (id: string) => request<void>(`/connectors/${id}`, { method: 'DELETE' }),
 }

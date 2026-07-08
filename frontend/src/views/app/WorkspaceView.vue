@@ -59,11 +59,11 @@ async function parse(doc: DocumentRecord) {
   }
 }
 
-function statusType(status: string | null): '' | 'success' | 'warning' | 'info' {
+function statusType(status: string | null): 'success' | 'warning' | 'info' {
   if (!status) return 'info'
   if (['parsed', 'analyzed', 'indexed'].includes(status)) return 'success'
   if (status === 'uploaded') return 'warning'
-  return ''
+  return 'info'
 }
 
 function formatSize(bytes: number | null): string {
@@ -151,7 +151,7 @@ onMounted(refresh)
             <el-button
               size="small"
               :loading="parsingId === row.id"
-              @click="parse(row)"
+              @click="parse(row as DocumentRecord)"
             >
               Parse
             </el-button>

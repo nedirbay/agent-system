@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
+    # --- Secret encryption at rest (connector tokens / API keys) ---
+    # Dedicated key for sealing third-party credentials with Fernet, kept
+    # separate from the JWT signing secret so it can be rotated independently.
+    # MUST be set from a secret manager in production; empty falls back to
+    # jwt_secret for local dev only (see app/core/crypto.py).
+    connector_encryption_key: str = ""
+
     # --- PostgreSQL (async) ---
     postgres_dsn: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/agent_platform"
@@ -115,7 +122,7 @@ class Settings(BaseSettings):
     execution_max_output_chars: int = 10_000
 
     # --- CORS ---
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:5174"]
+    cors_origins: list[str] = ["http://localhost:5175", "http://localhost:5176"]
 
 
 @lru_cache
